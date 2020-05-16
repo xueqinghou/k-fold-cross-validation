@@ -1,11 +1,6 @@
 ---
-title: "HOU, XUEQING, 31590907 - Homework 2"
-author: "HOU, XUEQING, 31590907"
 output: html_document
 ---
-
-Please read all instructions carefully.  Fill in all fields above (Espicially your student number) and remove square brackets. To allow this file to be knit, you might need to save it in a new location, as you do not have write permissions in the dropbox folder, and R does not work well with Chinese characters.
-Do not comment out the lines that produce output.  Check your html file before submission to ensure it has all relevant output. Do not delete anything below these instructions.  Thank you! 
 
 
 
