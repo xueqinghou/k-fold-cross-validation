@@ -1,0 +1,217 @@
+---
+title: "HOU, XUEQING, 31590907 - Homework 2"
+author: "HOU, XUEQING, 31590907"
+output: html_document
+---
+
+Please read all instructions carefully.  Fill in all fields above (Espicially your student number) and remove square brackets. To allow this file to be knit, you might need to save it in a new location, as you do not have write permissions in the dropbox folder, and R does not work well with Chinese characters.
+Do not comment out the lines that produce output.  Check your html file before submission to ensure it has all relevant output. Do not delete anything below these instructions.  Thank you! 
+
+
+
+**Question 1A:**
+```{r Question 1A}
+df <- read.csv("Student Data 7.csv")
+View(df)
+df1 = df[,-6]
+
+nFold = 10
+#Step 1: Randomly choose which fold each row is in 
+valNum = floor(runif(nrow(df1))*nFold)+1
+
+#Function returns k-fold cross validation error 
+getDetailRMSE = function(modelCall){
+	modelPerformance = rep(NA,nFold)
+	for(fold in 1:nFold){
+		#Step 2i: Get the training and validation data for this fold
+		trainingData = subset(df1,valNum!=fold)
+		validationData = subset(df1,valNum==fold)
+		
+		#Step 2ii: Estimate the model for this training data
+		model = update(modelCall,data=trainingData)
+		#Step 2iii: Calculate out of sample MSE for this validationData
+		validRMSE =  mean((validationData$card - predict(model,validationData))^2)^0.5
+		#Store model performance		
+		modelPerformance[fold] = validRMSE
+	}
+	return(mean(modelPerformance))
+}
+
+
+summary(lm(card~.,df1))
+anova(lm(card~.,df1))
+library(earth)
+earth1 = earth(card~.,df1)
+plotmo(earth1)
+lm1= lm(card~.,df1)
+lm2= lm(card~.^2,df1)
+lm3= lm(card~.^3,df1)
+lm4= lm(card~reports^2+log(income)+log(share)+age^2+factor(owner)+factor(selfemp)+dependents+months+majorcards+active^2,df1)
+lm5= lm(card~reports^2+log(income)+log(share)+age^2+factor(owner)+factor(selfemp)+factor(dependents)+months+factor(majorcards)+active^2,df1)
+lm6= lm(card~reports^2+log(income)+log(share)+age^2+factor(owner)+factor(selfemp)+factor(dependents)+months+factor(majorcards)+active^2+income*active+reports*age,df1)
+lm7= lm(card~reports^2+log(income)+log(share)+age^2+factor(owner)+factor(selfemp)+factor(dependents)+months+factor(majorcards)+active^2+share*reports+share*income,df1)
+lm8 = lm(card~poly(reports,3)+poly(income,3)+log(share)+poly(age,3)+factor(owner)+factor(selfemp)+factor(dependents)+months+factor(majorcards)+active^2+share*reports+share*income,df1)
+lm9 = lm(card~poly(reports,3)+poly(income,3)+log(share)+poly(age,3)+factor(owner)+factor(selfemp)+factor(dependents)+months+factor(majorcards)+poly(active,3)+share*reports+share*income,df1)
+
+
+mean1 = getDetailRMSE(lm1)
+mean2 = getDetailRMSE(lm2)
+mean3 = getDetailRMSE(lm3)
+mean4 = getDetailRMSE(lm4)
+mean5 = getDetailRMSE(lm5)
+mean6 = getDetailRMSE(lm6)
+mean7 = getDetailRMSE(lm7)
+mean8 = getDetailRMSE(lm8)
+mean9 = getDetailRMSE(lm9)
+
+
+earth1 = earth(card~.,df1)
+earth2 = earth(card~.,df1,degree = 2)
+earth3 = earth(card~.,df1,degree = 3)
+earth4 = earth(card~reports+age+selfemp+income+owner+majorcards+share+dependents+active+share*reports+share*income,df1,degree = 2)
+
+meanearth1 = getDetailRMSE(earth1)
+meanearth2 = getDetailRMSE(earth2)
+meanearth3 = getDetailRMSE(earth3)
+meanearth4 = getDetailRMSE(earth4)
+
+earth5 = earth(card~.,df1,degree = 2,thres = 0)
+earth6 = earth(card~.,df1,degree = 2,thres = 0.01)
+earth7 = earth(card~.,df1,degree = 2,thres = 0.1)
+
+meanearth5 = getDetailRMSE(earth5)
+meanearth6 = getDetailRMSE(earth6)
+meanearth7 = getDetailRMSE(earth7)
+
+chosenModel = earth5
+
+```
+
+
+
+**Question 1B:**
+```{r Question 1B}
+df <- read.csv("Student Data 7.csv")
+View(df)
+
+nFold = 10
+#Step 1: Randomly choose which fold each row is in 
+valNum = floor(runif(nrow(df))*nFold)+1
+
+#Function returns k-fold cross validation error 
+getDetailRMSE2 = function(modelCall){
+	modelPerformance = rep(NA,nFold)
+	for(fold in 1:nFold){
+		#Step 2i: Get the training and validation data for this fold
+		trainingData2 = subset(df,valNum!=fold)
+		validationData2 = subset(df,valNum==fold)
+		
+		#Step 2ii: Estimate the model for this training data
+		model = update(modelCall,data=trainingData2)
+		#Step 2iii: Calculate out of sample MSE for this validationData
+		validRMSE =  mean((validationData2$card - predict(model,validationData2))^2)^0.5
+		#Store model performance		
+		modelPerformance[fold] = validRMSE
+	}
+	return(mean(modelPerformance))
+}
+
+summary(lm(card~.,df))
+anova(lm(card~.,df))
+library(earth)
+earth21 = earth(card~.,df)
+plotmo(earth21)
+
+
+lm21= lm(card~.,df)
+lm22= lm(card~.^2,df)
+lm23= lm(card~.^3,df)
+lm24= lm(card~.^4,df)
+mean21 = getDetailRMSE2(lm21)
+mean22 = getDetailRMSE2(lm22)
+mean23 = getDetailRMSE2(lm23)
+mean24 = getDetailRMSE2(lm24)
+
+
+lm25 = lm(card~reports+income+owner+majorcards+share+expenditure+active,df)
+mean25 = getDetailRMSE2(lm25)
+
+lm26 = lm(card~reports^2+income+factor(owner)+factor(selfemp)+factor(majorcards)+log(share)+expenditure+active,df)
+mean26 = getDetailRMSE2(lm26)
+
+lm27 = lm(card~poly(reports,3)+income+factor(owner)+factor(selfemp)+factor(majorcards)+log(share)+expenditure+active,df)
+mean27 = getDetailRMSE2(lm27)
+
+lm28 = lm(card~poly(reports,3)+income+factor(owner)+factor(selfemp)+factor(majorcards)+poly(share,3)+poly(expenditure,3)+active,df)
+mean28 = getDetailRMSE2(lm28)
+
+lm29 = lm(card~.^2,df[,-c(3,10)])
+anova(lm27)
+anova(lm29)
+
+lm30 = lm(card~poly(reports,3)+income+factor(owner)+factor(selfemp)+factor(majorcards)+log(share)+expenditure+active+reports*share+reports*expenditure+reports*active+income*expenditure+share*expenditure+share*majorcards+expenditure*selfemp+expenditure*active,df)
+mean30 = getDetailRMSE2(lm30)
+
+lm31 = lm(card~poly(reports,3)+income+factor(owner)+factor(selfemp)+factor(majorcards)+log(share)+expenditure+active+reports*share+reports*expenditure+reports*selfemp+reports*active+income*expenditure+income*active+share*expenditure+share*majorcards+expenditure*owner+expenditure*selfemp+expenditure*active+selfemp*dependents,df)
+mean31 = getDetailRMSE2(lm31)
+
+lm32 = lm(card~poly(reports,3)+income+factor(owner)+factor(selfemp)+factor(majorcards)+log(share)+expenditure+active+reports*share+reports*expenditure+reports*selfemp+reports*active+income*expenditure+income*active+share*expenditure+share*majorcards+expenditure*owner+expenditure*selfemp+expenditure*active+selfemp*dependents+owner*selfemp+share*owner ,df)
+mean32 = getDetailRMSE2(lm32)
+
+earth21=earth(card~.,df)
+earth22=earth(card~.,df,degree = 2)
+earth23=earth(card~reports+income+owner+majorcards+share+expenditure+active+reports*share+reports*expenditure+reports*selfemp+reports*active+income*expenditure+income*active+share*expenditure+share*majorcards+expenditure*owner+expenditure*selfemp+expenditure*active+selfemp*dependents+owner*selfemp+share*owner,df)
+earth24=earth(card~reports+income+owner+majorcards+share+expenditure+active+reports*share+reports*expenditure+reports*selfemp+reports*active+income*expenditure+income*active+share*expenditure+share*majorcards+expenditure*owner+expenditure*selfemp+expenditure*active+selfemp*dependents+owner*selfemp+share*owner,degree =2, df)
+
+meanearth21 = getDetailRMSE2(earth21)
+meanearth22 = getDetailRMSE2(earth22)
+meanearth23 = getDetailRMSE2(earth23)
+meanearth24 = getDetailRMSE2(earth24)
+
+earth25 = earth(card~reports+income+owner+majorcards+share+expenditure+active+reports*share+reports*expenditure+reports*selfemp+reports*active+income*expenditure+income*active+share*expenditure+share*majorcards+expenditure*owner+expenditure*selfemp+expenditure*active+selfemp*dependents+owner*selfemp+share*owner,df,degree = 2,thres = 0)
+
+earth26 = earth(card~reports+income+owner+majorcards+share+expenditure+active+reports*share+reports*expenditure+reports*selfemp+reports*active+income*expenditure+income*active+share*expenditure+share*majorcards+expenditure*owner+expenditure*selfemp+expenditure*active+selfemp*dependents+owner*selfemp+share*owner,df,degree = 2,thres = 0.01)
+
+earth27 = earth(card~reports+income+owner+majorcards+share+expenditure+active+reports*share+reports*expenditure+reports*selfemp+reports*active+income*expenditure+income*active+share*expenditure+share*majorcards+expenditure*owner+expenditure*selfemp+expenditure*active+selfemp*dependents+owner*selfemp+share*owner,df,degree = 3,thres = 0)
+
+meanearth25 = getDetailRMSE2(earth25)
+meanearth26 = getDetailRMSE2(earth26)
+meanearth27 = getDetailRMSE2(earth27)
+
+chosenModel2 = earth25
+
+```
+
+
+```{r}
+#Fill in your student number in the line below to generate the RData file for submission. DO NOT CHANGE ANYTHING ELSE ABOUT THE CODE BELOW.
+studentNum = #31590907 
+
+#This reduces the file size in some cases fringe cases
+chosenModel$cv.list = NULL
+chosenModel$cv.oof.fit.tab = NULL
+chosenModel$varmod = NULL
+
+chosenModel2$cv.list = NULL
+chosenModel2$cv.oof.fit.tab = NULL
+chosenModel2$varmod = NULL
+
+save(chosenModel, chosenModel2, file = paste0(studentNum,'.Rdata'))
+
+#The following code checks if you generated the models correctly.  Run it, and if you see 'looks good!' pop up twice then your Rdata file is ready. Do not alter it any way - not even to change the variable names.  If not, please correct, or contact the TAs for help 
+load(paste0(studentNum,'.Rdata'))
+rightType = class(chosenModel)=='earth'|class(chosenModel)=='lm'
+rightType2 = class(chosenModel2)=='earth'|class(chosenModel2)=='lm'
+if(class(chosenModel)=='earth'){
+	noExpend = !grepl('[^-]expenditure',paste(rownames(chosenModel$coefficients),collapse=''))
+}  else {
+	noExpend = !grepl('[^-]expenditure',paste(names(chosenModel$coefficients),collapse=''))
+}
+
+if(rightType&rightType2&noExpend){ 
+	print('Looks Good!')
+} else {
+	print('Mistake - Check that you are saving lm and earth models, and that expenditure is not in the first model')
+}
+
+```
